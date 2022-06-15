@@ -79,20 +79,18 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
       }
     });
   });
-  const onFileUploaded = async ({ target: { files } }) => {
-    const file = new Uint8Array(await readFromBlobOrFile(files[0]));
-    setMessage('Loading FFmpeg.wasm');
-    if (!ffmpeg.isLoaded()) {
-      setMessage('Loading ffmpeg.wasm-core, may take few minutes');
-      await ffmpeg.load();
+  const onFilesUploaded = async ({ target: { files } }) => {
+    const inputPaths = [];
+    await ffmpeg.load();
+    for (const file of files) {
+      const { name } = file;
+      ffmpeg.FS('writeFile', name, await fetchFile(file));
+      inputPaths.push(`file ${name}`);
     }
-    ffmpeg.FS('writeFile', inFilename, await fetchFile(file));
-    setMessage('Start to run command');
-    const start = Date.now();
-    await ffmpeg.run(...args);
-    setMessage(`Done in ${Date.now() - start} ms`);
-    const data = ffmpeg.FS('readFile', outFilename);
-    setVideoSrc(URL.createObjectURL(new Blob([data.buffer], { type: mediaType })));
+    ffmpeg.FS('writeFile', 'concat_list.txt', inputPaths.join('\n'));
+    await ffmpeg.run('-f', 'concat', '-safe', '0', '-i', 'concat_list.txt', 'output.mp4');
+    const data = ffmpeg.FS('readFile', 'output.mp4');
+    setVideoSrc(URL.createObjectURL(new Blob([data.buffer], { type: "video/mp4" })));
   };
   return (
     <Grid className={classes.root} container direction="column" alignItems="center" spacing={2}>
@@ -118,7 +116,8 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
             <input
               type="file"
               style={{ display: 'none' }}
-              onChange={onFileUploaded}
+              onChange={onFilesUploaded}
+              multiple
             />
           </Button>
         )}
