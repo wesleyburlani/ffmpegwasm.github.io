@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -88,8 +89,8 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
       inputPaths.push(`file ${name}`);
     }
     ffmpeg.FS('writeFile', 'concat_list.txt', inputPaths.join('\n'));
-    await ffmpeg.run('-f', 'concat', '-safe', '0', '-i', 'concat_list.txt', 'output.mp4');
-    const data = ffmpeg.FS('readFile', 'output.mp4');
+    await ffmpeg.run('-f', 'concat', '-safe', '0', '-i', 'concat_list.txt',  '-c', 'copy','./output.mp4');
+    const data = ffmpeg.FS('readFile', './output.mp4');
     setVideoSrc(URL.createObjectURL(new Blob([data.buffer], { type: "video/mp4" })));
   };
   return (
