@@ -9,8 +9,6 @@ import {
 } from 'react-live';
 import vsDark from 'prism-react-renderer/themes/vsDark';
 import FFmpeg from './components/FFmpeg';
-// import DemoLinkCard from './components/DemoLinkCard';
-// import codepen from './assets/codepen.png';
 
 
 const CONFIGS = {

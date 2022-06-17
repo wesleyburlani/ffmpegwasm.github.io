@@ -91,7 +91,13 @@ function FFmpeg({ args, inFilename, outFilename, mediaType }) {
     ffmpeg.FS('writeFile', 'concat_list.txt', inputPaths.join('\n'));
     await ffmpeg.run('-f', 'concat', '-safe', '0', '-i', 'concat_list.txt',  '-c', 'copy','./output.mp4');
     const data = ffmpeg.FS('readFile', './output.mp4');
-    setVideoSrc(URL.createObjectURL(new Blob([data.buffer], { type: "video/mp4" })));
+    const a = document.createElement('a');
+    var url = window.URL.createObjectURL(new Blob([data], {type: "video/mp4"}));
+    a.href = url;
+    a.download = "meeting.mp4";
+    a.click();
+    window.URL.revokeObjectURL(url);
+    a.remove();
   };
   return (
     <Grid className={classes.root} container direction="column" alignItems="center" spacing={2}>
